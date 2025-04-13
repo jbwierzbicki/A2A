@@ -153,6 +153,19 @@ export class A2AServer {
       app.use(cors(options));
     }
 
+    // Add CSP headers middleware
+    app.use((req, res, next) => {
+      res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; font-src 'self' https: data:; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; script-src 'self' 'unsafe-inline';"
+      );
+      next();
+    });
+
+    // Serve static files from the public directory if it exists
+    const publicPath = `${process.cwd()}/src/agents/movie-agent/public`;
+    app.use(express.static(publicPath));
+
     // Middleware
     app.use(express.json()); // Parse JSON bodies
 
@@ -327,6 +340,7 @@ export class A2AServer {
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
+      "Content-Security-Policy": "default-src 'self'; font-src 'self' https: data:; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:;",
       Connection: "keep-alive",
       // Optional: "Access-Control-Allow-Origin": "*" // Handled by cors middleware usually
     });
